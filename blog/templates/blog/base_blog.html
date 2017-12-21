@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock title %}-Jet Blog</title>
+    <link rel="stylesheet" href="{% static 'blog/css/semantic.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'blog/css/custom.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'blog/css/pastie.css' %}" media="screen">
+    <script src="{% static 'blog/js/vue.js' %}"></script>
+</head>
+<body>
+<nav class="ui text  menu">
+    <h1 class="item" id="title">Jet Blog</h1>
+    <div class='right item'>
+        {% if request.user.is_authenticated %}
+            {% if request.user.profile.profile_image %}
+                <img id="user_image" class="ui circular image" src="/media/{{ request.user.profile.profile_image }}">
+            {% endif %}
+            <span id="username">{{ request.user.username }}</span>
+            <a class='item' href="{% url 'blog:logout' %}">
+                <button class="ui circular inverted button">登出</button>
+            </a>
+        {% else %}
+            <a class='item' href="#">
+                <a href="{% url 'blog:register' %}">
+                    <button class="ui circular inverted button">注册</button>
+                </a>
+            </a>
+            <a class='item' href="#">
+                <a href="{% url 'blog:login' %}">
+                    <button class="ui circular inverted button">登录</button>
+                </a>
+            </a>
+        {% endif %}
+    </div>
+</nav>
+<div class="ui segment container" id="all_content">
+    {% block content %}
+        {#        {% block register_login %}#}
+        {#        {% endblock register_login %}#}
+    {% endblock content %}
+    {% block sidebar %}
+        <aside id="side">
+            <div id="profile">
+                <a href="#" title="个人资料"><img src="{% static 'blog/images/avatar/default.png' %}" alt=""></a><br>
+                <div id="name">
+                    <span><a href="#">Jet Yan</a></span>
+                    <span>|</span>
+                    <span>博客数量&nbsp;{{ article_all.count }}</span>
+                </div>
+            </div>
+            <section class="mes">
+                <header>博客归档</header>
+                {% for created_date in article_filter_by_month %}
+                    <a href="{% url 'blog:article_date' created_date %}">{{ created_date }}</a>
+                {% endfor %}
+            </section>
+            <section class="mes">
+                <header>好好学习</header>
+                <a href="http://www.w3school.com.cn/">w3school</a><br>
+                <a href="">Segmentic UI</a><br>
+                <a href="">Django Doc</a><br>
+            </section>
+            <section class="mes">
+                <header>标签</header>
+                {% for label in labels %}
+                    <a href="{% url 'blog:article_set' label %}"
+                       class="ui {{ label_color|random }}  label">{{ label }}</a>
+                {% endfor %}
+            </section>
+        </aside>
+    {% endblock sidebar %}
+    <footer class="ui inverted  very padded segment" id="footer">
+        <div id="sns">
+            联系我:
+            <a href="https://weibo.com/jetgdut/profile?rightmod=1&wvr=6&mod=personnumber&is_all=1"><i
+                    class="weibo big  icon"></i></a>
+            <a href=""><i class="weixin big icon"></i></a>
+            <a href=""><i class="github big icon"></i></a>
+        </div>
+    </footer>
+</div>
+<div id="back_to_index">
+    <a href="#">
+        <button class="ui button"><i class="ui big chevron up icon"></i>回顶部</button>
+    </a>
+</div>
+<div id='top'>
+    <a href="/blog">
+        <button class="ui  button"><i class="ui home big icon"></i>回到首页</button>
+    </a>
+</div>
+{% block srcipt %}
+{% endblock srcipt %}
+</body>
+</html>

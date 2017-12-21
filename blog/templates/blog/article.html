@@ -1,0 +1,114 @@
+{% extends 'blog/base_blog.html' %}
+{% block title %}文章详情{% endblock title %}
+{% block content %}
+    <div id="main_content">
+        <article class="ui white raised  segment">
+            <header>
+                <h2 class="ui header">{{ article.title }}</h2>
+                <div class="sub">
+                    <a href="{% url 'blog:article_set' article.label %}"
+                       class="ui mini tag {{ label_color|random }} label">{{ article.label }}</a><br>
+                    <time>创建于 {{ article.created_at|date:"Y-m-d" }} {{ article.created_at|time:"H:i" }}</time>
+                    <time>最后修改 {{ article.modified_at|date:"Y-m-d" }} {{ article.modified_at|time:"H:i" }}</time>
+                    <a href="#comment"><span>评论 ({{ article.comment_set.count }})</span></a>
+                </div>
+            </header>
+            <div id="article_content">
+                {{ article.content|safe }}
+            </div>
+        </article>
+
+        <div class="ui white raised segment" id="comment">
+            <h3 class="ui header">发表评论</h3>
+            {% if request.user.is_authenticated %}
+                <form class="ui error form" method="post" action="{% url 'blog:article_comment' article.id %}"
+                      novalidate>
+                    {% csrf_token %}
+                    {#                {% for field in comment_form %}#}
+                    {#                    <div class="{{ field.errors|yesno:'error, ' }} field">#}
+                    {#                            {{ field.label_tag }}#}
+                    {#                            {{ field }}#}
+                    {% verbatim %}
+                    <div v-bind:class="class_waring" class="field">
+                        <label>你还可以输入 {{ 150 - cha.length }}字 <span v-show="cha.length < 10 ">(请至少输入10个字)</span></label>
+                        <textarea name="comment_content" cols="10" rows="3" v-model="cha" maxlength="150"></textarea>
+                    </div>
+                    {% endverbatim %}
+
+                    {#                    </div>#}
+
+                    {#                        {% if field.errors %}#}
+                    {#                            <div class="ui error message">#}
+                    {#                                {{ field.errors }}#}
+                    {#                            </div>#}
+                    {#                        {% endif %}#}
+                    {#                    {% endfor %}#}
+                    <input type="submit" class="ui blue button" v-bind:class="class_disabled" value="提交">
+                </form>
+                {#                <div v-for="item in items">#}
+                {#        {% verbatim %}#}
+                {#        {{ item.message }}#}
+                {#        {% endverbatim %}#}
+                {#    </div>#}
+            {% else %}
+                <p>请先 <a href="{% url 'blog:login' %}?next={{ request.path }}#comment">登录</a> 或 <a
+                        href="{% url 'blog:register' %}?next={{ request.path }}#comment">注册</a></p>
+            {% endif %}
+
+        </div>
+        <div class="ui white raised segment">
+            <header><h4>评论列表</h4></header>
+            {% if comment_list %}
+                <div class="ui comments">
+                    {% for comment in comment_list %}
+                        <div class="comment">
+                            <div class="avatar">
+                                <img src="/media/{{ comment.author.profile.profile_image }}" alt="">
+                            </div>
+                            <div class="content">
+                                <a href="#" class="author">{{ comment.author.username }}</a>
+                                <div class="metadata">
+                                    <div class="date">
+                                        发表于 {{ comment.created_at|date:"Y-m-d" }} {{ comment.created_at|time:"H:i" }}</div>
+                                </div>
+                                <p class="text">
+                                    {{ comment.content }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            {% else %}
+                <p id="no_comment">暂无评论</p>
+            {% endif %}
+        </div>
+
+    </div>
+{% endblock content %}
+
+{% block srcipt %}
+    <script>
+        var app = new Vue({
+            el: '#comment',
+            data: {
+                cha: '',
+                items: [
+                    {message: 'foo'},
+                    {message: 'bar'}
+                ]
+            },
+            computed: {
+                class_waring: function () {
+                    return {
+                        'error': this.cha.length === 150
+                    }
+                },
+                class_disabled: function () {
+                    return {'disabled': this.cha.length < 10}
+
+                }
+            }
+        })
+    </script>
+{% endblock srcipt %}

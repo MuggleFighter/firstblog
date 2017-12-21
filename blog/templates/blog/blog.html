@@ -1,0 +1,59 @@
+{% extends 'blog/base_blog.html' %}
+{% block title %}博客列表{% endblock %}
+{% block content %}
+    <div id="main_content">
+        {% for article in articles %}
+            <article class="ui white raised  segment">
+                <header>
+                    <h2><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a></h2>
+                    <div class="sub">
+                        <a href="{% url 'blog:article_set' article.label %}"
+                           class="ui mini tag {{ label_color|random }} label">{{ article.label }}</a><br>
+                        <time>创建于{{ article.created_at|date:"Y-m-d" }} {{ article.created_at|time:"H:i" }}</time>
+                        <time>最后修改{{ article.modified_at|date:"Y-m-d" }} {{ article.modified_at|time:"H:i" }}</time>
+                        <a href="{% url 'blog:article' article.id %}#comment"><span>评论 ({{ article.comment_set.count }})</span></a>
+                    </div>
+                </header>
+                <p>
+                    {{ article.content|truncatechars_html:350|safe }}
+                    <a href="{% url 'blog:article' article.id %}">
+                        <button class="ui blue inverted circular mini button">继续阅读</button>
+                    </a>
+                </p>
+            </article>
+        {% endfor %}
+        <div class="ui pagination borderless menu ">
+            {% if articles.has_previous %}
+                <a href="?page={{ articles.previous_page_number }}" class="item">
+                    <i class="icon red left caret"></i>
+                </a>
+            {% else %}
+                <div class="disabled item">
+                    <i class="icon  left caret"></i>
+                </div>
+            {% endif %}
+            {#            {% for page_number in articles.paginator.page_range %}#}
+            {#                {% ifequal page_number  articles.number %}#}
+            {#                    <a href="?page={{ page_number }}" class="active item" style="background-color: blue; color:white">#}
+            {#                        {{ page_number }}#}
+            {#                    </a>#}
+            {#                {% else %}#}
+            {#                    <a href="?page={{ page_number }}" class=" item">#}
+            {#                        {{ page_number }}#}
+            {#                    </a>#}
+            {#                {% endifequal %}#}
+            {#            {% endfor %}#}
+            {% if  articles.has_next %}
+                <a href="?page={{ articles.next_page_number }}" class="item">
+                    <i class="icon red right caret"></i>
+                </a>
+            {% else %}
+                <div class="disabled item">
+                    <i class="icon  right  caret"></i>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock content %}
